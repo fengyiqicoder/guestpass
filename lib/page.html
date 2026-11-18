@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>__TITLE__</title>
+<style>
+  :root { --bg:#faf9f5; --ink:#1f1e1d; --soft:#73726c; --line:#e8e6dc; --user:#f0eee6; --accent:#c96442; --code:#f5f4ed; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; }
+  body { background:var(--bg); color:var(--ink); font:16px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:768px; margin:0 auto; height:100%; display:flex; flex-direction:column; }
+  header { padding:14px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  header h1 { font-size:15px; margin:0; font-weight:600; color:var(--ink); }
+  .hd-r { display:flex; align-items:center; gap:12px; }
+  .sw { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--soft); cursor:pointer; user-select:none; }
+  .sw input { position:absolute; opacity:0; width:0; height:0; }
+  .sw .tr { width:30px; height:18px; border-radius:999px; background:#d9d6cb; position:relative; transition:background .15s; flex:none; }
+  .sw .tr::after { content:''; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:transform .15s; }
+  .sw input:checked + .tr { background:var(--accent); }
+  .sw input:checked + .tr::after { transform:translateX(12px); }
+  .sw input:focus-visible + .tr { outline:2px solid var(--accent); outline-offset:2px; }
+  .status { font-size:12px; color:var(--soft); display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  .dot { width:7px; height:7px; border-radius:50%; background:#c2c0b6; }
+  .dot.on { background:#5a9e6f; }
+  .dot.busy { background:var(--accent); animation:blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity:.3; } }
+  #log { flex:1; overflow-y:auto; padding:8px 20px 24px; }
+  .note { font-size:13px; color:var(--soft); text-align:center; margin:8px auto 28px; max-width:560px; }
+  .msg { margin:0 0 26px; display:flex; flex-direction:column; }
+  .msg.visitor, .msg.owner { align-items:flex-end; }
+  .who { font-size:12px; color:var(--soft); margin:0 4px 5px; }
+  .msg.claude .who { margin-left:0; }
+  .bubble { overflow-x:auto; }
+  .msg.visitor .bubble, .msg.owner .bubble { background:var(--user); border-radius:18px; padding:10px 16px; max-width:80%; white-space:normal; }
+  .msg.claude .bubble { padding:0; max-width:100%; }
+  .bubble p { margin:0 0 12px; }
+  .bubble p:last-child { margin-bottom:0; }
+  .bubble h1,.bubble h2,.bubble h3 { font-size:17px; font-weight:600; margin:22px 0 8px; }
+  .bubble ul,.bubble ol { margin:4px 0 12px; padding-left:24px; }
+  .bubble li { margin:4px 0; }
+  .bubble b, .bubble strong { font-weight:600; }
+  .bubble a { color:var(--ink); text-decoration:underline; text-underline-offset:2px; }
+  .bubble code { background:var(--code); border:1px solid var(--line); border-radius:5px; padding:1px 5px; font-size:14px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .bubble pre { background:var(--code); border:1px solid var(--line); border-radius:10px; padding:12px 14px; overflow-x:auto; font-size:13.5px; line-height:1.55; margin:6px 0 14px; }
+  .bubble pre code { background:none; border:0; padding:0; }
+  .bubble table { border-collapse:collapse; margin:8px 0 14px; font-size:14px; }
+  .bubble th,.bubble td { border-bottom:1px solid var(--line); padding:7px 12px 7px 0; text-align:left; vertical-align:top; }
+  .bubble th { font-weight:600; }
+  .bubble blockquote { margin:8px 0; padding-left:14px; border-left:3px solid var(--line); color:var(--soft); }
+  .bubble img { border-radius:10px; border:1px solid var(--line); }
+  .work { margin:4px 0 26px; font-size:14px; color:var(--soft); }
+  .work .head { display:flex; align-items:center; gap:8px; color:var(--ink); font-weight:500; margin-bottom:6px; }
+  .spin { width:14px; height:14px; border:2px solid #e4e1d6; border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; flex:none; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .work ol { list-style:none; margin:0; padding:0 0 0 2px; border-left:2px solid var(--line); }
+  .work li { padding:3px 0 3px 14px; position:relative; line-height:1.5; }
+  .work li::before { content:'✓'; position:absolute; left:-1px; transform:translateX(-50%); background:var(--bg); color:#8c8a80; font-size:11px; }
+  .work li.now { color:var(--ink); }
+  .work li.now::before { content:''; width:8px; height:8px; border-radius:50%; background:var(--accent); top:9px; animation:blink 1s infinite; }
+  .gc-btn { position:fixed; right:18px; bottom:150px; z-index:20; width:auto; height:auto; display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; background:#fff; color:var(--ink); border:1px solid var(--line); box-shadow:0 4px 16px rgba(0,0,0,.08); font-size:13px; font-weight:500; }
+  .gc-btn .bd { min-width:18px; height:18px; border-radius:9px; background:var(--accent); color:#fff; font-size:11px; line-height:18px; padding:0 5px; text-align:center; }
+  .gc { position:fixed; right:18px; bottom:196px; z-index:21; width:320px; height:420px; max-height:calc(100vh - 230px); background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 10px 32px rgba(0,0,0,.12); display:flex; flex-direction:column; overflow:hidden; }
+  .gc header { padding:10px 14px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+  .gc header b { font-size:14px; }
+  .gc header small { font-size:11px; color:var(--soft); display:block; max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .gc .x { width:28px; height:28px; background:none; color:var(--soft); font-size:18px; border-radius:8px; }
+  .gc .list { flex:1; overflow-y:auto; padding:10px 12px; font-size:14px; }
+  .gc .m { margin-bottom:10px; }
+  .gc .m .n { font-size:11px; color:var(--soft); }
+  .gc .m .t { background:var(--user); border-radius:12px; padding:6px 10px; display:inline-block; max-width:100%; word-break:break-word; }
+  .gc .m.me { text-align:right; }
+  .gc .m.me .t { background:#fbe7de; }
+  .gc .empty { color:var(--soft); font-size:12px; text-align:center; margin-top:40px; }
+  .gc form { display:flex; gap:6px; padding:8px; border-top:1px solid var(--line); background:#fff; }
+  .gc input { flex:1; border:1px solid var(--line); border-radius:10px; padding:7px 10px; font:inherit; font-size:14px; outline:none; }
+  .gc form button { width:auto; padding:0 12px; border-radius:10px; font-size:13px; }
+  @media (max-width:1200px) { .gc-btn { bottom:150px; } }
+  @media (max-width:560px) { .gc { left:0; right:0; bottom:0; width:auto; height:60vh; max-height:none; border-radius:16px 16px 0 0; } .gc-btn { right:12px; bottom:140px; } }
+  .pending { font-size:12px; color:var(--soft); margin:5px 6px 0; }
+  form { padding:0 20px 16px; padding-bottom:calc(16px + env(safe-area-inset-bottom)); background:var(--bg); }
+  .box { background:#fff; border:1px solid var(--line); border-radius:20px; padding:12px 14px 10px; box-shadow:0 2px 12px rgba(0,0,0,.04); }
+  .box:focus-within { border-color:#d4d1c4; }
+  textarea { width:100%; border:0; outline:none; resize:none; font:inherit; font-size:16px; background:transparent; color:var(--ink); min-height:28px; max-height:200px; padding:2px; }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:6px; }
+  #name { border:1px solid var(--line); border-radius:999px; padding:5px 12px; font:inherit; font-size:13px; width:150px; outline:none; background:var(--bg); color:var(--ink); }
+  .hint { font-size:12px; color:var(--soft); margin-left:auto; }
+  button { width:34px; height:34px; border-radius:10px; border:0; background:var(--accent); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:none; }
+  button:disabled { opacity:.4; cursor:default; }
+  button svg { width:16px; height:16px; }
+  .foot { text-align:center; font-size:11px; color:var(--soft); margin-top:8px; }
+  @media (max-width:560px) { .hint { display:none; } .hd-r { gap:8px; } header h1 { font-size:14px; } #name { width:120px; } .msg.visitor .bubble, .msg.owner .bubble { max-width:88%; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>__TITLE__</h1>
+    <div class="hd-r"><label class="sw" title="处理完时播放提示音"><input type="checkbox" id="swSound"><span class="tr"></span><span data-en="Sound">声音</span></label><label class="sw" id="swPopL" title="处理完时弹出 Chrome 系统通知" hidden><input type="checkbox" id="swPop"><span class="tr"></span><span data-en="Popup">弹窗</span></label><div class="status"><span class="dot" id="dot"></span><span id="st" data-en="Connecting…">连接中…</span></div></div>
+  </header>
+  <div id="log">
+    <div class="note" data-en="This is a live __AGENT__ session. The latest messages are below.">这是一个正在进行的 __AGENT__ 对话，下面是最近的记录</div>
+    <div id="msgs"></div>
+  </div>
+  <form id="f">
+    <div class="box">
+      <textarea id="t" rows="1" placeholder="回复 __AGENT__…" data-en-ph="Message __AGENT__…" maxlength="8000"></textarea>
+      <div class="bar">
+        <input id="name" placeholder="你的名字" data-en-ph="Your name" maxlength="24">
+        <span class="hint" data-en="Enter to send · Shift+Enter for a new line">Enter 发送 · Shift+Enter 换行</span>
+        <button id="b" type="submit" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+      </div>
+    </div>
+    <div class="foot" data-en="Your message goes to __AGENT__ on the host's computer. Bigger tasks can take a few minutes.">消息会交给主人电脑上的 __AGENT__ 处理，复杂的事可能要几分钟</div>
+    <div class="foot"><span data-en="Shared with GuestPass. Share your own agent: ">由 GuestPass 分享。把你的 AI Agent 也发给别人：</span><code>npx guestpass</code></div>
+  </form>
+</div>
+  <button type="button" class="gc-btn" id="gcBtn"><span data-en="Chat · ">群聊 · </span><span id="gcN">0</span><span data-en=" online"> 人在线</span> <span class="bd" id="gcBd" hidden>0</span></button>
+  <div class="gc" id="gc" hidden>
+    <header><div><b data-en="Guest chat">访客群聊</b><small id="gcWho" data-en="Between guests only. Not sent to __AGENT__.">只在网页访客之间，不会发给 __AGENT__</small></div><button type="button" class="x" id="gcX" aria-label="收起">×</button></header>
+    <div class="list" id="gcList"><div class="empty" data-en="No one has said anything yet.">还没人说话，打个招呼吧</div></div>
+    <form id="gcF"><input id="gcT" maxlength="2000" placeholder="和其他访客聊聊…" data-en-ph="Chat with other guests…" autocomplete="off"><button type="submit" data-en="Send">发送</button></form>
+  </div>
+<div id="lock" hidden style="position:fixed;inset:0;z-index:50;background:var(--bg,#fff);display:none;align-items:center;justify-content:center;padding:24px">
+  <form id="lockF" style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
+    <b style="font-size:18px" data-en="This session needs a password">这个对话需要密码</b>
+    <input id="lockP" type="password" autocomplete="off" placeholder="密码" data-en-ph="Password" style="font:inherit;padding:10px 12px;border:1px solid #c8c8c8;border-radius:8px">
+    <button type="submit" data-en="Enter" style="font:inherit;padding:10px 12px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer">进入</button>
+    <small id="lockE" style="color:#c0392b;min-height:1.2em"></small>
+  </form>
+</div>
+<script>
+(function () {
+  var ROOM = '__ROOM__', API = '/api/' + ROOM + '/', AGENT = '__AGENT__';
+  var ZH = /^zh/i.test(navigator.language || '');
+  function L(zh, en) { return ZH ? zh : en; }
+  var GUEST = L('访客', 'Guest');
+  if (!ZH) {
+    document.documentElement.lang = 'en';
+    [].forEach.call(document.querySelectorAll('[data-en]'), function (el) { el.textContent = el.getAttribute('data-en'); });
+    [].forEach.call(document.querySelectorAll('[data-en-ph]'), function (el) { el.placeholder = el.getAttribute('data-en-ph'); });
+  }
+  var ver = -1, msgs = document.getElementById('msgs'), log = document.getElementById('log');
+  var nameEl = document.getElementById('name'), t = document.getElementById('t'), b = document.getElementById('b');
+  try { nameEl.value = localStorage.getItem('relay_name') || ''; } catch (e) {}
+
+  function esc(s) { return s.replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function inline(s) {
+    return esc(s).replace(/!\[([^\]]*)\]\((\/api\/[A-Za-z0-9_\/.-]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;max-height:420px;display:block;margin:6px 0">')
+      .replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  }
+  function md(src) {
+    var lines = src.split('\n'), out = [], i = 0, list = null;
+    function close() { if (list) { out.push('</' + list + '>'); list = null; } }
+    while (i < lines.length) {
+      var l = lines[i];
+      if (/^```/.test(l)) { close(); var code = []; i++; while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]); i++; out.push('<pre><code>' + esc(code.join('\n')) + '</code></pre>'); continue; }
+      if (/^\|.*\|\s*$/.test(l) && i + 1 < lines.length && /^\|[\s:|-]+\|\s*$/.test(lines[i + 1])) {
+        close(); var cells = function (r) { return r.trim().replace(/^\||\|$/g, '').split('|'); };
+        var h = cells(l); i += 2; var rows = [];
+        while (i < lines.length && /^\|.*\|\s*$/.test(lines[i])) rows.push(cells(lines[i++]));
+        out.push('<table><tr>' + h.map(function (c) { return '<th>' + inline(c.trim()) + '</th>'; }).join('') + '</tr>' +
+          rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + inline(c.trim()) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>');
+        continue;
+      }
+      var m;
+      if ((m = l.match(/^(#{1,4})\s+(.*)/))) { close(); out.push('<h3>' + inline(m[2]) + '</h3>'); }
+      else if ((m = l.match(/^\s*[-*]\s+(.*)/))) { if (list !== 'ul') { close(); out.push('<ul>'); list = 'ul'; } out.push('<li>' + inline(m[1]) + '</li>'); }
+      else if ((m = l.match(/^\s*\d+[.)]\s+(.*)/))) { if (list !== 'ol') { close(); out.push('<ol>'); list = 'ol'; } out.push('<li>' + inline(m[1]) + '</li>'); }
+      else if ((m = l.match(/^>\s?(.*)/))) { close(); out.push('<blockquote>' + inline(m[1]) + '</blockquote>'); }
+      else if (l.trim()) { close(); out.push('<p>' + inline(l) + '</p>'); }
+      else close();
+      i++;
+    }
+    close();
+    return out.join('');
+  }
+  function fmt(ts) { var d = new Date(ts * 1000); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+
+  function workHtml(steps) {
+    var list = steps.map(function (st, i) {
+      return '<li' + (i === steps.length - 1 ? ' class="now"' : '') + '>' + esc(st) + '</li>';
+    }).join('');
+    return '<div class="work"><div class="head"><span class="spin"></span>' + esc(AGENT) + L(' 正在处理…', ' is working…') + '</div>' + (list ? '<ol>' + list + '</ol>' : '') + '</div>';
+  }
+
+  // ---------- 完成提醒：Claude 处理完、出现新回复时发 Chrome 通知 ----------
+  var baseTitle = document.title;
+  var canNotify = 'Notification' in window, prevBusy = null, lastClaudeTs = null;
+  var swSound = document.getElementById('swSound'), swPop = document.getElementById('swPop'), swPopL = document.getElementById('swPopL');
+  function pref(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v === '1'; } catch (e) { return d; } }
+  function setPref(k, v) { try { localStorage.setItem(k, v ? '1' : '0'); } catch (e) {} }
+  // 提示音：Web Audio 现场合成「叮咚」，不用音频文件；首次点击页面时解锁
+  var actx = null;
+  function unlockAudio() {
+    try {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+    } catch (e) {}
+  }
+  function chime() {
+    if (!actx) return;
+    try {
+      var t0 = actx.currentTime;
+      [[880, 0], [1318.5, 0.16]].forEach(function (n) {
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.value = n[0];
+        g.gain.setValueAtTime(0.0001, t0 + n[1]);
+        g.gain.exponentialRampToValueAtTime(0.25, t0 + n[1] + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[1] + 0.6);
+        o.connect(g); g.connect(actx.destination);
+        o.start(t0 + n[1]); o.stop(t0 + n[1] + 0.65);
+      });
+    } catch (e) {}
+  }
+  document.addEventListener('pointerdown', unlockAudio);
+  document.addEventListener('keydown', unlockAudio);
+  function popup(title, body, tag) {
+    try { var n = new Notification(title, { body: body, tag: tag, renotify: true }); n.onclick = function () { window.focus(); n.close(); }; } catch (e) {}
+  }
+  // 声音开关：默认开
+  swSound.checked = pref('relay_sound', true);
+  swSound.addEventListener('change', function () {
+    setPref('relay_sound', swSound.checked);
+    if (swSound.checked) { unlockAudio(); chime(); }
+  });
+  // 弹窗开关：默认关；打开时申请权限，成功发一条测试通知，被拦截就弹回关
+  function syncPop() {
+    if (!canNotify) return;
+    swPopL.hidden = false;
+    var granted = Notification.permission === 'granted';
+    swPop.checked = granted && pref('relay_popup', false);
+    swPopL.title = Notification.permission === 'denied' ? 'Chrome 拦截了本站通知：点地址栏左边的图标，把「通知」改成允许' : '处理完时弹出 Chrome 系统通知';
+  }
+  function afterAsk() {
+    var ok = Notification.permission === 'granted';
+    setPref('relay_popup', ok);
+    syncPop();
+    if (ok) popup(L('弹窗已开启', 'Popups are on'), L('处理完时会这样提醒你', 'You will be notified like this when a reply is ready'), 'relay-test');
+  }
+  swPop.addEventListener('change', function () {
+    if (!swPop.checked) { setPref('relay_popup', false); return; }
+    if (Notification.permission === 'granted') { afterAsk(); return; }
+    if (Notification.permission === 'denied') { swPop.checked = false; alert(L('浏览器拦截了本站的通知：点地址栏左边的图标，把「通知」改成「允许」后再打开。', 'Your browser is blocking notifications for this site. Allow them from the icon left of the address bar, then turn this on again.')); return; }
+    var r = Notification.requestPermission(afterAsk);
+    if (r && r.then) r.then(afterAsk);
+  });
+  syncPop();
+  function askNotify() { unlockAudio(); }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) document.title = baseTitle; });
+  function plain(s) { return s.replace(/[#*`>\[\]()!_|-]/g, '').replace(/\s+/g, ' ').trim(); }
+  function checkDone(data) {
+    var claude = data.items.filter(function (m) { return m.kind !== 'visitor' && m.role === 'assistant'; });
+    var latest = claude.length ? claude[claude.length - 1] : null;
+    if (prevBusy === null) { prevBusy = data.busy; lastClaudeTs = latest ? latest.ts : 0; return; }
+    var fresh = latest && latest.ts > lastClaudeTs;
+    if (fresh && !data.busy) {
+      lastClaudeTs = latest.ts;
+      var first = plain(latest.text).slice(0, 80);
+      if (document.hidden) document.title = L('● 新回复 · ', '● New reply · ') + baseTitle;
+      if (swSound.checked) chime();
+      if (swPop.checked && canNotify && Notification.permission === 'granted') popup(AGENT + L(' 回复了', ' replied'), first, 'relay-' + ROOM);
+    }
+    prevBusy = data.busy;
+  }
+
+  function render(data) {
+    checkDone(data);
+    var nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 120;
+    msgs.innerHTML = data.items.map(function (m) {
+      var cls = m.kind === 'visitor' ? 'visitor' : (m.role === 'assistant' ? 'claude' : 'owner');
+      var who = m.kind === 'visitor' ? esc(m.name) : (m.role === 'assistant' ? esc(AGENT) : L('主人', 'Host'));
+      var body = cls === 'claude' ? md(m.text) : '<p>' + esc(m.text).replace(/\n/g, '<br>') + '</p>';
+      var pend = (m.kind === 'visitor' && !m.delivered) ? '<div class="pending">' + L('已发送，等待 ', 'Sent. Waiting for ') + esc(AGENT) + L(' 接收…', ' to pick it up…') + '</div>' : '';
+      return '<div class="msg ' + cls + '"><div class="who">' + who + ' · ' + fmt(m.ts) + '</div><div class="bubble">' + body + '</div>' + pend + '</div>';
+    }).join('') + (data.busy ? workHtml(data.steps || []) : '');
+    var dot = document.getElementById('dot'), st = document.getElementById('st');
+    dot.className = 'dot' + (data.busy ? ' busy' : (data.online ? ' on' : ''));
+    st.textContent = data.busy ? AGENT + L(' 正在处理…', ' is working…') : (data.online ? L('在线', 'Online') : L('暂时没在听，消息会排队', 'Not listening right now. Messages will queue.'));
+    if (nearBottom) log.scrollTop = log.scrollHeight;
+  }
+
+  // ---------- 访客群聊：不经过 Claude ----------
+  var CID = (function () { try { var c = localStorage.getItem('relay_cid'); if (!c) { c = Math.random().toString(36).slice(2, 12); localStorage.setItem('relay_cid', c); } return c; } catch (e) { return Math.random().toString(36).slice(2, 12); } })();
+  var gc = document.getElementById('gc'), gcBtn = document.getElementById('gcBtn'), gcList = document.getElementById('gcList');
+  var gcSeen = null, gcLastLen = 0;
+  try { gcSeen = Number(localStorage.getItem('relay_gc_seen') || 0); } catch (e) { gcSeen = 0; }
+  function myName() { return (nameEl.value.trim() || GUEST); }
+  function renderChat(data) {
+    var chat = data.chat || [], people = data.people || [];
+    document.getElementById('gcN').textContent = people.length;
+    document.getElementById('gcWho').textContent = people.length ? L('在线：', 'Online: ') + people.join(L('、', ', ')) : L('只在网页访客之间，不会发给 ', 'Between guests only. Not sent to ') + AGENT;
+    if (chat.length !== gcLastLen) {
+      var near = gcList.scrollHeight - gcList.scrollTop - gcList.clientHeight < 60;
+      gcList.innerHTML = chat.length ? chat.map(function (m) {
+        return '<div class="m' + (m.name === myName() ? ' me' : '') + '"><div class="n">' + esc(m.name) + ' · ' + fmt(m.ts) + '</div><div class="t">' + esc(m.text) + '</div></div>';
+      }).join('') : '<div class="empty">' + L('还没人说话，打个招呼吧', 'No one has said anything yet.') + '</div>';
+      if (near || !gcLastLen) gcList.scrollTop = gcList.scrollHeight;
+      gcLastLen = chat.length;
+    }
+    var unread = chat.filter(function (m) { return m.ts > gcSeen && m.name !== myName(); }).length;
+    if (!gc.hidden) { markSeen(chat); unread = 0; }
+    var bd = document.getElementById('gcBd'); bd.hidden = !unread; bd.textContent = unread;
+  }
+  var lastChat = [];
+  function markSeen(chat) { if (chat.length) { gcSeen = chat[chat.length - 1].ts; try { localStorage.setItem('relay_gc_seen', String(gcSeen)); } catch (e) {} } }
+  gcBtn.addEventListener('click', function () { gc.hidden = !gc.hidden; if (!gc.hidden) { markSeen(lastChat); document.getElementById('gcBd').hidden = true; gcList.scrollTop = gcList.scrollHeight; document.getElementById('gcT').focus(); } });
+  document.getElementById('gcX').addEventListener('click', function () { gc.hidden = true; });
+  document.getElementById('gcF').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var t = document.getElementById('gcT'), text = t.value.trim(); if (!text) return;
+    var x = new XMLHttpRequest(); x.open('POST', API + 'chat'); x.setRequestHeader('Content-Type', 'application/json');
+    x.onload = function () { if (x.status === 200) t.value = ''; };
+    x.send(JSON.stringify({ name: myName(), text: text }));
+  });
+
+  var lock = document.getElementById('lock'), locked = false;
+  function showLock() { locked = true; lock.hidden = false; lock.style.display = 'flex'; document.getElementById('lockP').focus(); }
+  document.getElementById('lockF').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var x = new XMLHttpRequest(); x.open('POST', API + 'login'); x.setRequestHeader('Content-Type', 'application/json');
+    x.onload = function () {
+      if (x.status === 200) { locked = false; lock.hidden = true; lock.style.display = 'none'; document.getElementById('lockE').textContent = ''; poll(); }
+      else document.getElementById('lockE').textContent = x.status === 429 ? L('试的次数太多，请一分钟后再试', 'Too many attempts. Try again in a minute.') : L('密码不对', 'Wrong password');
+    };
+    x.send(JSON.stringify({ password: document.getElementById('lockP').value }));
+  });
+  function poll() {
+    if (locked) return;
+    var x = new XMLHttpRequest();
+    x.open('GET', API + 'feed?after=' + ver + '&cid=' + CID + '&name=' + encodeURIComponent(nameEl.value.trim() || GUEST));
+    x.timeout = 35000;
+    x.onload = function () {
+      if (x.status === 200) { var d = JSON.parse(x.responseText); ver = d.ver; render(d); lastChat = d.chat || []; renderChat(d); setTimeout(poll, 150); }
+      else if (x.status === 401) showLock();
+      else setTimeout(poll, 3000);
+    };
+    x.onerror = x.ontimeout = function () { setTimeout(poll, 3000); };
+    x.send();
+  }
+
+  function send(e) {
+    if (e) e.preventDefault();
+    var text = t.value.trim(); if (!text) return;
+    askNotify();
+    var name = nameEl.value.trim() || GUEST;
+    try { localStorage.setItem('relay_name', name); } catch (err) {}
+    b.disabled = true;
+    var x = new XMLHttpRequest();
+    x.open('POST', API + 'say');
+    x.setRequestHeader('Content-Type', 'application/json');
+    x.onload = function () { b.disabled = false; if (x.status === 200) { t.value = ''; t.style.height = 'auto'; log.scrollTop = log.scrollHeight; } else alert(L('发送失败，请重试', 'Could not send. Please try again.')); };
+    x.onerror = function () { b.disabled = false; alert(L('网络错误，请重试', 'Network error. Please try again.')); };
+    x.send(JSON.stringify({ name: name, text: text }));
+  }
+  document.getElementById('f').addEventListener('submit', send);
+  t.addEventListener('input', function () { t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 200) + 'px'; });
+  t.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) send(e); });
+  poll();
+})();
+</script>
+</body>
+</html>
