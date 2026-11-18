@@ -2,10 +2,43 @@
   "name": "guestpass",
   "version": "0.1.0",
   "description": "Let anyone with a browser talk to your AI agent session. No account, nothing to install on their side.",
-  "bin": { "guestpass": "bin/guestpass.js" },
-  "files": ["bin", "lib", "skills", "README.md", "LICENSE"],
-  "engines": { "node": ">=18" },
-  "scripts": { "test": "node test/e2e.js" },
-  "keywords": ["claude-code", "codex", "ai-agent", "share", "session", "remote", "cloudflare-tunnel", "agent-skill"],
+  "bin": {
+    "guestpass": "bin/guestpass.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node test/e2e.js"
+  },
+  "keywords": [
+    "claude-code",
+    "codex",
+    "ai-agent",
+    "share",
+    "session",
+    "remote",
+    "cloudflare-tunnel",
+    "agent-skill",
+    "gemini-cli",
+    "cursor",
+    "share-session",
+    "guest"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fengyiqicoder/guestpass.git"
+  },
+  "homepage": "https://github.com/fengyiqicoder/guestpass#readme",
+  "bugs": {
+    "url": "https://github.com/fengyiqicoder/guestpass/issues"
+  },
   "license": "MIT"
 }
