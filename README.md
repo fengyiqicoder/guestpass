@@ -16,6 +16,8 @@ Link: https://random-words.trycloudflare.com/r/aqJYeCwPBOKKjB9a
 
 Send the link. Your teammate, boss or client opens it on a phone or laptop and asks the same session, with all the context it already has. [Watch the 60-second demo](https://youtu.be/iQjg-lmFT6k).
 
+Other tools let *you* reach your session from another device. GuestPass lets *someone else* reach it, with nothing but a browser. [How it compares](docs/compare.md)
+
 ## Why
 
 Most ways to share an agent session ask the other person to install the agent or sign in to something. The people you want to show it to often can't or won't. GuestPass asks them for a browser.

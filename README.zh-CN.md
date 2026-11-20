@@ -16,6 +16,8 @@ Link: https://random-words.trycloudflare.com/r/aqJYeCwPBOKKjB9a
 
 把链接发出去。同事、老板、客户用手机或电脑打开，问的就是你那个会话，项目上下文都在。
 
+别的工具是让你自己换个设备接着用，GuestPass 是让另一个人用浏览器接着用，对方不用账号、不用安装。[和同类工具的区别](docs/compare.md)
+
 ## 为什么做
 
 现有的会话分享办法，多数要对方也装 Agent 或者登录账号。可你想给看的人往往装不了，也不想装。GuestPass 只要对方有浏览器。
