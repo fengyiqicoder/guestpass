@@ -35,6 +35,13 @@ npx skills add fengyiqicoder/guestpass
 
 Then tell your agent "guestpass" or "share this session".
 
+As a Claude Code plugin:
+
+```
+/plugin marketplace add fengyiqicoder/guestpass
+/plugin install guestpass@guestpass
+```
+
 Or by hand:
 
 ```bash

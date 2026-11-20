@@ -35,6 +35,13 @@ npx skills add fengyiqicoder/guestpass
 
 然后对 Agent 说“guestpass”或“把这个会话分享出去”。
 
+装成 Claude Code 插件：
+
+```
+/plugin marketplace add fengyiqicoder/guestpass
+/plugin install guestpass@guestpass
+```
+
 也可以手动：
 
 ```bash
