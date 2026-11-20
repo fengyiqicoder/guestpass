@@ -2,7 +2,7 @@
   "name": "guestpass",
   "displayName": "GuestPass",
   "description": "Share this agent session through a link that works in any browser, so someone else can keep talking to the same session with no account and nothing to install.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": { "name": "fengyiqicoder", "url": "https://github.com/fengyiqicoder" },
   "homepage": "https://github.com/fengyiqicoder/guestpass",
   "repository": "https://github.com/fengyiqicoder/guestpass",

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 (2026-11-22)
+
+- New: the link now shows a preview card (title and description) when pasted into chat apps
+- New: the guest page footer says what GuestPass is and how to share your own session
+- New: installable as a Claude Code plugin (`/plugin marketplace add fengyiqicoder/guestpass`)
+
 ## 0.1.1 (2026-11-20)
 
 - Fixed: on phones the guest chat panel covered the message box and could not be closed
