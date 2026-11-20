@@ -34,7 +34,9 @@ jobs:
         run: npm --version && npm pack --dry-run
       - name: Publish
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && npm view "$(node -p "const p=require('./package.json');p.name+'@'+p.version")" version >/dev/null 2>&1; then
+            echo "::notice::This version is already on npm. Nothing to publish."
+          elif [ "$GITHUB_EVENT_NAME" = "push" ]; then
             npm publish
           elif npm view "$(node -p "const p=require('./package.json');p.name+'@'+p.version")" version >/dev/null 2>&1; then
             echo "::notice::Rehearsal only. This version is already on npm, so bump package.json before tagging."
