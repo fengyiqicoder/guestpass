@@ -1,0 +1,15 @@
+{
+  "name": "guestpass",
+  "description": "GuestPass: let anyone with a browser talk to your agent session.",
+  "owner": {
+    "name": "fengyiqicoder",
+    "url": "https://github.com/fengyiqicoder"
+  },
+  "plugins": [
+    {
+      "name": "guestpass",
+      "source": "./",
+      "description": "Share this agent session through a link that works in any browser, so someone else can keep talking to it with no account and nothing to install."
+    }
+  ]
+}
