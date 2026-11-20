@@ -12,7 +12,9 @@ npx guestpass start --password pick-one
 Link: https://random-words.trycloudflare.com/r/aqJYeCwPBOKKjB9a
 ```
 
-Send the link. Your teammate, boss or client opens it on a phone or laptop and asks the same session, with all the context it already has.
+![A phone browser talking to a Claude Code session running on a laptop](docs/demo.gif)
+
+Send the link. Your teammate, boss or client opens it on a phone or laptop and asks the same session, with all the context it already has. [Watch the 60-second demo](https://youtu.be/iQjg-lmFT6k).
 
 ## Why
 

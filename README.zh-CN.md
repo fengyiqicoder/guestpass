@@ -12,6 +12,8 @@ npx guestpass start --password 自己定一个
 Link: https://random-words.trycloudflare.com/r/aqJYeCwPBOKKjB9a
 ```
 
+![手机浏览器和电脑上的 Claude Code 会话对话](docs/demo.gif)
+
 把链接发出去。同事、老板、客户用手机或电脑打开，问的就是你那个会话，项目上下文都在。
 
 ## 为什么做

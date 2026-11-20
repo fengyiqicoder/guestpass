@@ -1,6 +1,6 @@
 {
   "name": "guestpass",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Let anyone with a browser talk to your AI agent session. No account, nothing to install on their side.",
   "bin": {
     "guestpass": "bin/guestpass.js"

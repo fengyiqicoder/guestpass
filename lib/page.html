@@ -78,7 +78,7 @@
   .gc input { flex:1; border:1px solid var(--line); border-radius:10px; padding:7px 10px; font:inherit; font-size:14px; outline:none; }
   .gc form button { width:auto; padding:0 12px; border-radius:10px; font-size:13px; }
   @media (max-width:1200px) { .gc-btn { bottom:150px; } }
-  @media (max-width:560px) { .gc { left:0; right:0; bottom:0; width:auto; height:60vh; max-height:none; border-radius:16px 16px 0 0; } .gc-btn { right:12px; bottom:140px; } }
+  @media (max-width:560px) { .gc { left:0; right:0; bottom:0; width:auto; height:60vh; max-height:none; border-radius:16px 16px 0 0; } .gc-btn { right:12px; top:58px; bottom:auto; padding:6px 12px; font-size:12px; } .note { text-align:left; padding-right:128px; } }
   .pending { font-size:12px; color:var(--soft); margin:5px 6px 0; }
   form { padding:0 20px 16px; padding-bottom:calc(16px + env(safe-area-inset-bottom)); background:var(--bg); }
   .box { background:#fff; border:1px solid var(--line); border-radius:20px; padding:12px 14px 10px; box-shadow:0 2px 12px rgba(0,0,0,.04); }
@@ -127,7 +127,7 @@
   <form id="lockF" style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
     <b style="font-size:18px" data-en="This session needs a password">这个对话需要密码</b>
     <input id="lockP" type="password" autocomplete="off" placeholder="密码" data-en-ph="Password" style="font:inherit;padding:10px 12px;border:1px solid #c8c8c8;border-radius:8px">
-    <button type="submit" data-en="Enter" style="font:inherit;padding:10px 12px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer">进入</button>
+    <button type="submit" data-en="Enter" style="width:100%;height:auto;font:inherit;padding:10px 12px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer">进入</button>
     <small id="lockE" style="color:#c0392b;min-height:1.2em"></small>
   </form>
 </div>
