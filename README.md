@@ -87,6 +87,14 @@ Guest's browser  ->  Cloudflare tunnel  ->  GuestPass on your computer  ->  your
 - **The link is temporary.** It is a random trycloudflare.com address that changes on every start and stops when your computer sleeps. For a fixed address on your own domain, set `GUESTPASS_TUNNEL_TOKEN` and `GUESTPASS_PUBLIC_URL` to a Cloudflare tunnel you own.
 - **Your plan, your limits.** Guests use your agent subscription. Check your provider's terms before sharing widely.
 
+## Works well with
+
+- **[ccusage](https://github.com/ryoppippi/ccusage)**: guests use your plan and your quota. Run `npx ccusage session` to see what each shared session cost, or `npx ccusage blocks --active` to watch the current 5-hour window.
+- **[claude-squad](https://github.com/smtg-ai/claude-squad)**: run several agents, share just one. Each claude-squad instance is its own session on its own git worktree. Start GuestPass inside one instance and the link shows only that instance.
+- **[container-use](https://github.com/dagger/container-use)**: let the agent do the work inside a container. Commands a guest asks for then run in a container-use environment instead of on your machine. This only covers what the agent does through container-use tools, so tell it not to use its own shell.
+
+Whichever session you run `guestpass start` in is the one you share.
+
 ## Roadmap and feedback
 
 Next up: read-only and ask-first guest modes, session mirroring for more agents, a fixed link without your own domain. The order follows what people ask for, so [open an issue](https://github.com/fengyiqicoder/guestpass/issues) or [start a discussion](https://github.com/fengyiqicoder/guestpass/discussions). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
