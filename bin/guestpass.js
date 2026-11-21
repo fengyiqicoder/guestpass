@@ -17,6 +17,7 @@ const HELP = `guestpass: let anyone with a browser talk to your AI agent.
       --password <pw>         Guests must enter this password first
       --title <text>          Page title (default: the agent's name)
       --agent <name>          claude, codex, gemini, cursor, opencode, or any name (default: detected)
+      --port <number>         Fixed local port (default: any free port). Needed for a fixed address
       --no-tunnel             Local link only, for testing
   guestpass wait [--timeout <seconds>]
                               Block until a guest sends a message, print it, exit
@@ -114,6 +115,11 @@ async function cmdStart(o) {
     transcript: typeof o.transcript === 'string' ? o.transcript : (agent.transcript ? agent.transcript(process.env) : null),
     cwd: process.cwd(), startedAt: new Date().toISOString(), noTunnel: !!o.noTunnel,
   };
+  if (o.port !== undefined) {
+    const port = Number(o.port);
+    if (!Number.isInteger(port) || port < 1024 || port > 65535) die('--port needs a number between 1024 and 65535, for example: guestpass start --port 4777');
+    st.port = port;
+  }
   if (typeof o.password === 'string' && o.password) {
     st.passwordSalt = crypto.randomBytes(8).toString('hex');
     st.passwordHash = crypto.createHash('sha256').update(st.passwordSalt + o.password).digest('hex');
