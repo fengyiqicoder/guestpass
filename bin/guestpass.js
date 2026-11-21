@@ -17,6 +17,7 @@ const HELP = `guestpass: let anyone with a browser talk to your AI agent.
       --password <pw>         Guests must enter this password first
       --title <text>          Page title (default: the agent's name)
       --agent <name>          claude, codex, gemini, cursor, opencode, or any name (default: detected)
+      --room <name>           Keep the same link path across restarts (8+ characters, hard to guess)
       --port <number>         Fixed local port (default: any free port). Needed for a fixed address
       --no-tunnel             Local link only, for testing
   guestpass wait [--timeout <seconds>]
@@ -115,6 +116,10 @@ async function cmdStart(o) {
     transcript: typeof o.transcript === 'string' ? o.transcript : (agent.transcript ? agent.transcript(process.env) : null),
     cwd: process.cwd(), startedAt: new Date().toISOString(), noTunnel: !!o.noTunnel,
   };
+  if (o.room !== undefined) {
+    if (typeof o.room !== 'string' || !/^[A-Za-z0-9_-]{8,64}$/.test(o.room)) die('--room needs 8 to 64 letters, digits, - or _. It is the last part of the link, so make it hard to guess.');
+    st.room = o.room;
+  }
   if (o.port !== undefined) {
     const port = Number(o.port);
     if (!Number.isInteger(port) || port < 1024 || port > 65535) die('--port needs a number between 1024 and 65535, for example: guestpass start --port 4777');
