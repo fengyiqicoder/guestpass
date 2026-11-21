@@ -25,6 +25,7 @@ const HELP = `guestpass: let anyone with a browser talk to your AI agent.
   guestpass say [text]        Post the agent's reply (reads stdin when no text is given)
   guestpass send <file>       Share an image or file; prints Markdown to put in a reply
   guestpass status            Link, who is here, whether the agent is listening
+  guestpass cost              What the session has used since you shared it (needs ccusage installed)
   guestpass stop              End sharing. The link stops working.
 
 Options for any command: --id <name> picks a session when one folder runs several.
@@ -115,6 +116,7 @@ async function cmdStart(o) {
     agent: agent.id, agentLabel: agent.label, title: String(o.title || agent.label),
     transcript: typeof o.transcript === 'string' ? o.transcript : (agent.transcript ? agent.transcript(process.env) : null),
     cwd: process.cwd(), startedAt: new Date().toISOString(), noTunnel: !!o.noTunnel,
+    sessionId: (agent.sessionId && agent.sessionId(process.env)) || null,
   };
   if (o.room !== undefined) {
     if (typeof o.room !== 'string' || !/^[A-Za-z0-9_-]{8,64}$/.test(o.room)) die('--room needs 8 to 64 letters, digits, - or _. It is the last part of the link, so make it hard to guess.');
@@ -235,13 +237,52 @@ async function cmdStatus(o) {
   }
 }
 
+// What the shared session has used, read from ccusage when the host already has it installed.
+// GuestPass never downloads it: usage numbers are the host's business, and so is what runs on their machine.
+function usage(st) {
+  if (!st.sessionId) return { why: 'no-session' };
+  const bin = process.env.GUESTPASS_CCUSAGE || require('../lib/cloudflared').onPath('ccusage');
+  if (!bin) return { why: 'no-ccusage' };
+  let d;
+  try {
+    const out = require('child_process').execFileSync(bin, ['session', '--json', '--id', st.sessionId], { encoding: 'utf8', timeout: 90000, maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+    d = JSON.parse(out);
+  } catch (e) { return { why: 'failed' }; }
+  if (!d || !Array.isArray(d.entries)) return { why: 'failed' };
+  const t0 = Date.parse(st.startedAt);
+  const since = { tokens: 0, cost: 0 };
+  for (const e of d.entries) {
+    if (Date.parse(e.timestamp) < t0) continue;
+    since.tokens += (e.inputTokens || 0) + (e.outputTokens || 0) + (e.cacheCreationTokens || 0) + (e.cacheReadTokens || 0);
+    since.cost += e.costUSD || 0;
+  }
+  return { since, total: { tokens: d.totalTokens || 0, cost: d.totalCost || 0 } };
+}
+const fmtUse = (u) => u.tokens.toLocaleString('en-US') + ' tokens' + (u.cost > 0 ? ', about $' + u.cost.toFixed(2) : '');
+
+async function cmdCost(o) {
+  const st = current(o);
+  if (!st) die(NOT_SHARED);
+  const u = usage(st);
+  if (u.why === 'no-session') return console.log('GuestPass cannot tell which ' + st.agentLabel + ' session this is, so it cannot look up its usage.');
+  if (u.why === 'no-ccusage') return console.log('`guestpass cost` reads usage from ccusage (https://github.com/ryoppippi/ccusage), which is not installed.\nInstall it with `npm install -g ccusage`, then run this again.');
+  if (u.why) return console.log('ccusage did not return usage for this session. Try `ccusage session --id ' + st.sessionId + '` to see why.');
+  console.log('Since you shared this session (' + st.startedAt.slice(0, 16).replace('T', ' ') + ' UTC): ' + fmtUse(u.since));
+  console.log('The whole session so far: ' + fmtUse(u.total));
+  console.log('');
+  console.log('This is everything the session did in that time, your own messages and your guests\' together. Guests use your plan and your quota.');
+  console.log('Numbers come from ccusage.');
+}
+
 async function cmdStop(o) {
   const st = current(o);
   if (!st) return console.log('Nothing to stop.');
+  const u = usage(st);
   await call(st, 'POST', 'stop', {}).catch(() => { try { process.kill(st.pid); } catch (e) {} });
   for (let i = 0; i < 20 && alive(st.pid); i++) await sleep(150);
   try { fs.unlinkSync(stateFile(st.key)); } catch (e) {}
   console.log('Sharing stopped. The link no longer works.');
+  if (u.since) console.log('While it was shared, this session used ' + fmtUse(u.since) + ' (your messages and your guests\' together, from ccusage).');
 }
 
 async function main() {
@@ -250,7 +291,7 @@ async function main() {
   if (cmd === '__daemon') return require('../lib/daemon').run(o._[1]);
   if (!cmd || cmd === 'help' || o.help) return console.log(HELP);
   if (cmd === 'version' || o.version) return console.log(require('../package.json').version);
-  const fn = { start: cmdStart, wait: cmdWait, say: cmdSay, send: cmdSend, status: cmdStatus, stop: cmdStop }[cmd];
+  const fn = { start: cmdStart, wait: cmdWait, say: cmdSay, send: cmdSend, status: cmdStatus, cost: cmdCost, stop: cmdStop }[cmd];
   if (!fn) die('Unknown command: ' + cmd + '\n\n' + HELP);
   await fn(o);
 }
