@@ -2,7 +2,7 @@
 
 ## 0.1.3 (2026-11-23)
 
-- New: `--room <name>` keeps the same link path across restarts, so a link you already sent keeps working
+- New: `--room <name>` keeps the same link path across restarts. With your own tunnel domain a link you already sent keeps working; with the default trycloudflare.com address the domain still changes
 - New: `--port <number>` runs the local server on a fixed port
 - Fixed: with your own Cloudflare tunnel (`GUESTPASS_TUNNEL_TOKEN`), the tunnel now routes to the local port by itself; no ingress rule to set up in the dashboard
 
