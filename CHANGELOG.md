@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 (2026-11-23)
+
+- New: `--room <name>` keeps the same link path across restarts, so a link you already sent keeps working
+- New: `--port <number>` runs the local server on a fixed port
+- Fixed: with your own Cloudflare tunnel (`GUESTPASS_TUNNEL_TOKEN`), the tunnel now routes to the local port by itself; no ingress rule to set up in the dashboard
+
 ## 0.1.2 (2026-11-22)
 
 - New: the link now shows a preview card (title and description) when pasted into chat apps
