@@ -84,6 +84,7 @@ Guest's browser  ->  Cloudflare tunnel  ->  GuestPass on your computer  ->  your
 
 - **A guest can do what your agent can do.** Their messages go to the live session on your computer, with its files, shell and logins. Send the link only to people you trust, and set a password.
 - **The page shows recent messages.** If the last 20 messages contain a key or a password, a guest sees it.
+- **Guests spend your quota.** `guestpass cost` shows what the session has used since you shared it (needs [ccusage](https://github.com/ryoppippi/ccusage) installed; Claude Code only for now). The number covers your own messages and your guests' together.
 - **The link is temporary.** It is a random trycloudflare.com address that changes on every start and stops when your computer sleeps. For a fixed address on your own domain, set `GUESTPASS_TUNNEL_TOKEN` and `GUESTPASS_PUBLIC_URL` to a Cloudflare tunnel you own. Add `--room <name>` so the path after the domain stays the same too: `guestpass start --room my-team-room-7f3k`. The room name is the only secret in the link, so make it long and hard to guess, and set a password.
 - **Your plan, your limits.** Guests use your agent subscription. Check your provider's terms before sharing widely.
 

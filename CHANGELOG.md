@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 (2026-11-24)
+
+- New: `guestpass cost` shows what the session has used since you shared it, tokens and estimated cost. `guestpass stop` prints the same line. Guests use your plan, so this is the number to look at before you leave a link open
+- It reads the numbers from [ccusage](https://github.com/ryoppippi/ccusage) when you already have it installed. GuestPass does not download it. Claude Code sessions only for now
+
 ## 0.1.3 (2026-11-23)
 
 - New: `--room <name>` keeps the same link path across restarts. With your own tunnel domain a link you already sent keeps working; with the default trycloudflare.com address the domain still changes

@@ -240,6 +240,7 @@ async function cmdStatus(o) {
 // What the shared session has used, read from ccusage when the host already has it installed.
 // GuestPass never downloads it: usage numbers are the host's business, and so is what runs on their machine.
 function usage(st) {
+  if (st.agent !== 'claude') return { why: 'not-claude' }; // only the Claude Code output of ccusage has been checked
   if (!st.sessionId) return { why: 'no-session' };
   const bin = process.env.GUESTPASS_CCUSAGE || require('../lib/cloudflared').onPath('ccusage');
   if (!bin) return { why: 'no-ccusage' };
@@ -264,6 +265,7 @@ async function cmdCost(o) {
   const st = current(o);
   if (!st) die(NOT_SHARED);
   const u = usage(st);
+  if (u.why === 'not-claude') return console.log('`guestpass cost` only works for Claude Code sessions for now.');
   if (u.why === 'no-session') return console.log('GuestPass cannot tell which ' + st.agentLabel + ' session this is, so it cannot look up its usage.');
   if (u.why === 'no-ccusage') return console.log('`guestpass cost` reads usage from ccusage (https://github.com/ryoppippi/ccusage), which is not installed.\nInstall it with `npm install -g ccusage`, then run this again.');
   if (u.why) return console.log('ccusage did not return usage for this session. Try `ccusage session --id ' + st.sessionId + '` to see why.');
