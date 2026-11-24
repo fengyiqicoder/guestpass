@@ -252,14 +252,23 @@ function usage(st) {
   if (!d || !Array.isArray(d.entries)) return { why: 'failed' };
   const t0 = Date.parse(st.startedAt);
   const since = { tokens: 0, cost: 0 };
+  // Price weight of an entry: output costs about 5x input, a cache write 1.25x, a cache read 0.1x.
+  const weight = (e) => (e.inputTokens || 0) + 5 * (e.outputTokens || 0) + 1.25 * (e.cacheCreationTokens || 0) + 0.1 * (e.cacheReadTokens || 0);
+  let wSince = 0, wAll = 0;
   for (const e of d.entries) {
+    wAll += weight(e);
     if (Date.parse(e.timestamp) < t0) continue;
     since.tokens += (e.inputTokens || 0) + (e.outputTokens || 0) + (e.cacheCreationTokens || 0) + (e.cacheReadTokens || 0);
     since.cost += e.costUSD || 0;
+    wSince += weight(e);
   }
-  return { since, total: { tokens: d.totalTokens || 0, cost: d.totalCost || 0 } };
+  const totalCost = d.totalCost || 0;
+  // On a subscription the entries carry no recorded cost, only the session total is priced.
+  // Split that total by price weight so "since you shared" still gets a dollar figure, marked as rough.
+  if (!(since.cost > 0) && totalCost > 0 && wAll > 0 && wSince > 0) { since.cost = totalCost * wSince / wAll; since.rough = true; }
+  return { since, total: { tokens: d.totalTokens || 0, cost: totalCost } };
 }
-const fmtUse = (u) => u.tokens.toLocaleString('en-US') + ' tokens' + (u.cost > 0 ? ', about $' + u.cost.toFixed(2) : '');
+const fmtUse = (u) => u.tokens.toLocaleString('en-US') + ' tokens' + (u.cost > 0 ? (u.rough ? ', roughly $' : ', about $') + u.cost.toFixed(2) : '');
 
 async function cmdCost(o) {
   const st = current(o);

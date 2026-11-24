@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 (2026-11-25)
+
+- Fixed: on a subscription plan, `guestpass cost` showed tokens but no dollar figure for the time since you shared. It now shows a rough figure, the session total split by token price weight, and marks it "roughly"
+
 ## 0.1.4 (2026-11-24)
 
 - New: `guestpass cost` shows what the session has used since you shared it, tokens and estimated cost. `guestpass stop` prints the same line. Guests use your plan, so this is the number to look at before you leave a link open
